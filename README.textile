@@ -1,0 +1,7 @@
+"MongoDB":http://www.mongodb.org/ database backup handler for "backupninja":https://labs.riseup.net/code/projects/show/backupninja
+
+Performs binary backup (using @mongodump@ utility) of MongoDB database.
+
+h3. Installation instructions
+
+TBD
