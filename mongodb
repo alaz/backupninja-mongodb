@@ -1,0 +1,100 @@
+# -*- mode: sh; sh-basic-offset: 3; indent-tabs-mode: nil; -*-
+#
+# mongodb handler script for backupninja
+#
+
+getconf tar /bin/tar
+getconf mongodump /usr/bin/mongodump
+getconf backupdir /var/backups/mongodb
+getconf dbhost localhost
+getconf vsname
+
+# Decide if the handler should operate on a vserver or on the host.
+# In the former case, check that $vsname exists and is running.
+local usevserver=no
+local vroot
+if [ $vservers_are_available = yes ]; then
+   if [ -n "$vsname" ]; then
+      # does it exist ?
+      if ! vservers_exist "$vsname" ; then
+         fatal "The vserver given in vsname ($vsname) does not exist."
+      fi
+      # is it running ?
+      vservers_running $vsname || fatal "The vserver $vsname is not running."
+      # everything ok
+      info "Using vserver '$vsname'."
+      usevserver=yes
+      vroot="$VROOTDIR/$vsname"
+   else
+      info "No vserver name specified, actions will be performed on the host."
+   fi
+fi
+
+
+# create backup dirs, $vroot will be empty if no vsname was specified
+# and we will instead proceed to operate on the host
+[ -d $vroot$backupdir ] || mkdir -p $root$vbackupdir
+[ -d $vroot$backupdir ] || fatal "Backup directory is '$vroot$backupdir'"
+
+#######################################################################
+## dumping mongodb
+
+if [ ! -f $vroot$mongodump ]; then
+        fatal "$vroot$mongodump does not exists"
+fi
+
+if [ $usevserver = yes ]
+then
+        info "dbhost: $dbhost"
+
+        if [ ! -d $vroot$backupdir ]; then
+                fatal "$vroot$backupdir does not exists"
+        fi
+
+        if [ ! -w $vroot$backupdir ]; then
+                fatal "$vroot$backupdir is not writable"
+        fi
+
+        execdump="$VSERVER $vsname exec $mongodump -h $dbhost -o $backupdir"
+        execrm="$VSERVER $vsname exec rm -rf $backupdir/*"
+else
+        if [ ! -d $backupdir ]; then
+                fatal "$backupdir does not exists"
+        fi
+
+        if [ ! -w $backupdir ]; then
+                fatal "$backupdir is not writable"
+        fi
+
+        execdump="$mongodump -h $dbhost -o $backupdir"
+        execrm="rm -rf $backupdir/*"
+fi
+
+if [ ! $test ]; then
+        outputrm=`su $user -c "$execrm" 2>&1`
+        coderm=$?
+
+        if [ "$coderm" == "0" ]; then
+                debug $outputrm
+                info "Successfully removed old dump (if exist)"
+        else
+                warning $outputrm
+                warning "Failed to remove old dump"
+        fi
+
+
+        outputdump=`su $user -c "$execdump" 2>&1`
+        codedump=$?
+
+        if [ "$codedump" == "0" ]; then
+                debug $outputdump
+                info "Successfully finished dump of all mongodb databases"
+        else
+                warning $outputdump
+                warning "Failed to dumping of mongodb databases"
+        fi
+else
+        debug "Running backup of mongodb"
+fi
+
+return 0

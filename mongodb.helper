@@ -1,0 +1,51 @@
+# -*- mode: sh; sh-basic-offset: 3; indent-tabs-mode: nil; -*-
+# vim: set filetype=sh sw=3 sts=3 expandtab autoindent:
+
+HELPERS="$HELPERS mongodb:mongodb_database_backup"
+
+do_mongodb_vserver() {
+   choose_one_vserver "$mongodb_title"
+   [ $? = 0 ] || return 1
+   vsname="vsname = $REPLY"
+}
+
+mongodb_wizard() {
+
+   # Global variables
+   mongodb_title="MongoDB action wizard"
+
+   # backup the host system or a Vserver?
+   choose_host_or_one_vserver "$mongodb_title"
+   [ $? = 0 ] || return 1
+   if [ $host_or_vservers == vservers ]
+   then
+      do_mongodb_vserver
+      [ $? = 0 ] || return 1
+   fi
+
+   inputBox "$mongodb_title" "Where located \"mongodump\" wile?" "/usr/bin/mongodump"
+   [ $? = 1 ] && return;
+   result="$REPLY"
+   mongodump="mongodump = $result"
+
+   inputBox "$mongodb_title" "Directory where to store the backups:`echo \"\n(Relative to chosen vserver's root directory)\"`" "/var/backups/mongodb"
+   [ $? = 1 ] && return;
+   result="$REPLY"
+   backupdir="backupdir = $result"
+
+   inputBox "$mongodb_title" "MongoDB host" "localhost"
+   [ $? = 1 ] && return;
+   result="$REPLY"
+   dbhost="hostdb = $result"
+
+   get_next_filename $configdirectory/31-db.mongodb
+   cat > $next_filename <<EOF
+# when = everyday at 5:15
+$mongodump
+$backupdir
+$dbhost
+$vsname
+EOF
+   chmod 600 $next_filename
+}
+
