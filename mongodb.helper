@@ -23,12 +23,12 @@ mongodb_wizard() {
       [ $? = 0 ] || return 1
    fi
 
-   inputBox "$mongodb_title" "Where located \"mongodump\" wile?" "/usr/bin/mongodump"
+   inputBox "$mongodb_title" "What is the path to \"mongodump\" utility?" "/usr/bin/mongodump"
    [ $? = 1 ] && return;
    result="$REPLY"
    mongodump="mongodump = $result"
 
-   inputBox "$mongodb_title" "Directory where to store the backups:`echo \"\n(Relative to chosen vserver's root directory)\"`" "/var/backups/mongodb"
+   inputBox "$mongodb_title" "Directory where backups should be stored?`echo \"\n(Relative to the vserver's root if run in a vserver)\"`" "/var/backups/mongodb"
    [ $? = 1 ] && return;
    result="$REPLY"
    backupdir="backupdir = $result"
