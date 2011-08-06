@@ -90,8 +90,8 @@ if [ ! $test ]; then
                 debug $outputdump
                 info "Successfully finished dump of all mongodb databases"
         else
-                warning $outputdump
-                warning "Failed to dumping of mongodb databases"
+                fatal $outputdump
+                fatal "Failed to dumping of mongodb databases"
         fi
 else
         debug "Running backup of mongodb"
