@@ -28,6 +28,20 @@ mongodb_wizard() {
    result="$REPLY"
    mongodump="mongodump = $result"
 
+   mongouser="# mongouser = <username>"
+   mongopass="# mongopass = <password>"
+   inputBox "$mongodb_title" "Mongo DB User" 
+   [ $? = 1 ] && return;
+   result="$REPLY"
+   if [ $REPLY ]
+   then
+      mongouser="mongouser = $result"
+      inputBox "$mongodb_title" "Mongo DB Password"
+      [ $? = 1 ] && return;
+      result="$REPLY"
+      mongopass="mongopass = $result"
+   fi
+
    inputBox "$mongodb_title" "Directory where backups should be stored?`echo \"\n(Relative to the vserver's root if run in a vserver)\"`" "/var/backups/mongodb"
    [ $? = 1 ] && return;
    result="$REPLY"
@@ -42,6 +56,8 @@ mongodb_wizard() {
    cat > $next_filename <<EOF
 # when = everyday at 5:15
 $mongodump
+$mongouser
+$mongopass
 $backupdir
 $dbhost
 $vsname
