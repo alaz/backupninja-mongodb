@@ -63,7 +63,7 @@ then
                 fatal "$vroot$backupdir is not writable"
         fi
 
-        execdump="$VSERVER $vsname exec $mongodump -h $dbhost -o $backupdiri $AUTH"
+        execdump="$VSERVER $vsname exec $mongodump -h $dbhost -o $backupdir $AUTH"
         execrm="$VSERVER $vsname exec rm -rf $backupdir/*"
 else
         if [ ! -d $backupdir ]; then
