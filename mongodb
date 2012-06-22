@@ -9,6 +9,7 @@ getconf backupdir /var/backups/mongodb
 getconf dbhost localhost
 getconf mongouser
 getconf mongopass
+getconf mongodb
 getconf vsname
 
 # Decide if the handler should operate on a vserver or on the host.
@@ -51,6 +52,12 @@ then
 	AUTH="-u $mongouser -p $mongopass"
 fi
 
+if [ -n $mongodb ]
+then
+	info "only dumping db $mongodb"
+	DB="-d $mongodb"
+fi
+
 if [ $usevserver = yes ]
 then
         info "dbhost: $dbhost"
@@ -74,7 +81,7 @@ else
                 fatal "$backupdir is not writable"
         fi
 
-        execdump="$mongodump -h $dbhost -o $backupdir $AUTH"
+        execdump="$mongodump -h $dbhost -o $backupdir $AUTH $DB"
         execrm="rm -rf $backupdir/*"
 fi
 
