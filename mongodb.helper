@@ -50,7 +50,7 @@ mongodb_wizard() {
    if [ $REPLY ]
    then
      mongodb="mongodb = $result"
-     backupdir_default=$backupdir_default + "_" + $result
+     backupdir_default="${backupdir_default}_${result}"
    fi
 
    inputBox "$mongodb_title" "Directory where backups should be stored?`echo \"\n(Relative to the vserver's root if run in a vserver)\"`" $backupdir_default
