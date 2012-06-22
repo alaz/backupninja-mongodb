@@ -42,6 +42,7 @@ mongodb_wizard() {
       mongopass="mongopass = $result"
    fi
 
+   backupdir_default="/var/backups/mongodb"
    mongodb="# mongodb = <db to backup>"
    inputBox "$mongodb_title" "Mongo DB to backup, leave empty for all dbs."
    [ $? = 1 ] && return;
@@ -49,9 +50,10 @@ mongodb_wizard() {
    if [ $REPLY ]
    then
      mongodb="mongodb = $result"
+     backupdir_default=$backupdir_default + "_" + $result
    fi
 
-   inputBox "$mongodb_title" "Directory where backups should be stored?`echo \"\n(Relative to the vserver's root if run in a vserver)\"`" "/var/backups/mongodb"
+   inputBox "$mongodb_title" "Directory where backups should be stored?`echo \"\n(Relative to the vserver's root if run in a vserver)\"`" $backupdir_default
    [ $? = 1 ] && return;
    result="$REPLY"
    backupdir="backupdir = $result"
