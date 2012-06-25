@@ -52,7 +52,7 @@ then
 	AUTH="-u $mongouser -p $mongopass"
 fi
 
-if [ -n $mongodb ]
+if [ -n "$mongodb" ]
 then
 	info "only dumping db $mongodb"
 	DB="-d $mongodb"
