@@ -10,6 +10,7 @@ getconf dbhost localhost
 getconf mongouser
 getconf mongopass
 getconf mongodb
+getconf mongocollection
 getconf vsname
 
 # Decide if the handler should operate on a vserver or on the host.
@@ -58,6 +59,13 @@ then
 	DB="-d $mongodb"
 fi
 
+if [ -n "$mongocollection" ]
+then
+	info "only dumping collection $mongocollection"
+	COLLECTION="-c $mongocollection"
+fi
+
+
 if [ $usevserver = yes ]
 then
         info "dbhost: $dbhost"
@@ -70,7 +78,7 @@ then
                 fatal "$vroot$backupdir is not writable"
         fi
 
-        execdump="$VSERVER $vsname exec $mongodump -h $dbhost -o $backupdir $AUTH $DB"
+        execdump="$VSERVER $vsname exec $mongodump -h $dbhost -o $backupdir $AUTH $DB $COLLECTION"
         execrm="$VSERVER $vsname exec rm -rf $backupdir/*"
 else
         if [ ! -d $backupdir ]; then
@@ -81,7 +89,7 @@ else
                 fatal "$backupdir is not writable"
         fi
 
-        execdump="$mongodump -h $dbhost -o $backupdir $AUTH $DB"
+        execdump="$mongodump -h $dbhost -o $backupdir $AUTH $DB $COLLECTION"
         execrm="rm -rf $backupdir/*"
 fi
 

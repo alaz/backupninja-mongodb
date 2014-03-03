@@ -44,6 +44,7 @@ mongodb_wizard() {
 
    backupdir_default="/var/backups/mongodb"
    mongodb="# mongodb = <db to backup>"
+   mongocollection="# mongocollection = <collection to backup>"
    inputBox "$mongodb_title" "Mongo DB to backup, leave empty for all dbs."
    [ $? = 1 ] && return;
    result="$REPLY"
@@ -51,6 +52,14 @@ mongodb_wizard() {
    then
      mongodb="mongodb = $result"
      backupdir_default="${backupdir_default}_${result}"
+     inputBox "$mongodb_title" "Mongo collection to backup, leave empty for all collections."
+       [ $? = 1 ] && return;
+       result="$REPLY"
+       if [ $REPLY ]
+       then
+         mongocollection="mongocollection = $result"
+         backupdir_default="${backupdir_default}_${result}"
+       fi
    fi
 
    inputBox "$mongodb_title" "Directory where backups should be stored?`echo \"\n(Relative to the vserver's root if run in a vserver)\"`" $backupdir_default
@@ -70,6 +79,7 @@ $mongodump
 $mongouser
 $mongopass
 $mongodb
+$mongocollection
 $backupdir
 $dbhost
 $vsname
