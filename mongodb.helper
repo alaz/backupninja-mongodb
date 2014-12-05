@@ -70,7 +70,7 @@ mongodb_wizard() {
    inputBox "$mongodb_title" "MongoDB host" "localhost"
    [ $? = 1 ] && return;
    result="$REPLY"
-   dbhost="hostdb = $result"
+   dbhost="dbhost = $result"
 
    inputBox "$mongodb_title" "MongoDB port" "27017"
    [ $? = 1 ] && return;
