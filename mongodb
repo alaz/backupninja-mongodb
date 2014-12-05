@@ -7,6 +7,7 @@ getconf tar /bin/tar
 getconf mongodump /usr/bin/mongodump
 getconf backupdir /var/backups/mongodb
 getconf dbhost localhost
+getconf dbport 27017
 getconf mongouser
 getconf mongopass
 getconf mongodb
@@ -68,7 +69,7 @@ fi
 
 if [ $usevserver = yes ]
 then
-        info "dbhost: $dbhost"
+        info "dbhost: $dbhost, dbport: $dbport"
 
         if [ ! -d $vroot$backupdir ]; then
                 fatal "$vroot$backupdir does not exists"
@@ -78,7 +79,7 @@ then
                 fatal "$vroot$backupdir is not writable"
         fi
 
-        execdump="$VSERVER $vsname exec $mongodump -h $dbhost -o $backupdir $AUTH $DB $COLLECTION"
+        execdump="$VSERVER $vsname exec $mongodump -h $dbhost:$dbport -o $backupdir $AUTH $DB $COLLECTION"
         execrm="$VSERVER $vsname exec rm -rf $backupdir/*"
 else
         if [ ! -d $backupdir ]; then
@@ -89,7 +90,7 @@ else
                 fatal "$backupdir is not writable"
         fi
 
-        execdump="$mongodump -h $dbhost -o $backupdir $AUTH $DB $COLLECTION"
+        execdump="$mongodump -h $dbhost:$dbport -o $backupdir $AUTH $DB $COLLECTION"
         execrm="rm -rf $backupdir/*"
 fi
 
