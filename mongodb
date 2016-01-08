@@ -6,6 +6,7 @@
 getconf tar /bin/tar
 getconf mongodump /usr/bin/mongodump
 getconf backupdir /var/backups/mongodb
+getconf dumpopts ""
 getconf dbhost localhost
 getconf dbport 27017
 getconf mongouser
@@ -66,6 +67,9 @@ then
 	COLLECTION="-c $mongocollection"
 fi
 
+if [ -n "$dumpopts" ]; then
+    EXTRA_OPTIONS="$dumpopts"
+fi
 
 if [ $usevserver = yes ]
 then
@@ -79,7 +83,7 @@ then
                 fatal "$vroot$backupdir is not writable"
         fi
 
-        execdump="$VSERVER $vsname exec $mongodump -h $dbhost:$dbport -o $backupdir $AUTH $DB $COLLECTION"
+        execdump="$VSERVER $vsname exec $mongodump -h $dbhost:$dbport -o $backupdir $AUTH $EXTRA_OPTIONS $DB $COLLECTION"
         execrm="$VSERVER $vsname exec rm -rf $backupdir/*"
 else
         if [ ! -d $backupdir ]; then
@@ -90,7 +94,7 @@ else
                 fatal "$backupdir is not writable"
         fi
 
-        execdump="$mongodump -h $dbhost:$dbport -o $backupdir $AUTH $DB $COLLECTION"
+        execdump="$mongodump -h $dbhost:$dbport -o $backupdir $AUTH $EXTRA_OPTIONS $DB $COLLECTION"
         execrm="rm -rf $backupdir/*"
 fi
 
